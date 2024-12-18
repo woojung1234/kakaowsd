@@ -4,9 +4,8 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "deploy": "vue-cli-service build && gh-pages -d dist"
+    "build": "vue-cli-service build --mode production",
+    "deploy": "vue-cli-service build --mode production && gh-pages -d dist"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.7.1",
@@ -14,6 +13,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "axios": "^1.7.7",
     "core-js": "^3.8.3",
+    "dotenv": "^16.4.7",
     "lodash": "^4.17.21",
     "vue": "^3.2.13",
     "vue-router": "^4.0.3",

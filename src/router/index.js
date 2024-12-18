@@ -47,7 +47,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory('/moviewsd/'), // 기본 URL
+  history: createWebHistory('/kakaowsd/'), // 기본 URL
   routes,
 });
 
