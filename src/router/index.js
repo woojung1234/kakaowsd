@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router'; // 변경된 부분
 import store from '../store'; // Vuex Store 가져오기
 import PopularMovies from '../views/PopularMovies.vue';
 import MovieDetailsPage from '../views/MovieDetailsPage.vue';
@@ -47,7 +47,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory('/kakaowsd/'), // 기본 URL
+  history: createWebHashHistory('/kakaowsd/'), // Hash 모드 사용
   routes,
 });
 
@@ -56,16 +56,12 @@ router.beforeEach((to, from, next) => {
   const isAuthenticated = store.getters.isLoggedIn; // Vuex에서 상태 가져오기
 
   if (to.name === 'signin' && isAuthenticated) {
-    // 이미 로그인된 상태에서 로그인 페이지로 이동 시 홈으로 리다이렉트
-    next({ name: 'home' });
+    next({ name: 'home' }); // 이미 로그인된 상태에서 로그인 페이지 접근 시 리다이렉트
   } else if (to.meta.requiresAuth && !isAuthenticated) {
-    // 인증이 필요한 페이지에 접근하려고 하지만 인증되지 않은 경우
-    next({ name: 'signin' });
+    next({ name: 'signin' }); // 인증이 필요한 페이지 접근 시 로그인 페이지로 리다이렉트
   } else {
-    // 접근 허용
-    next();
+    next(); // 접근 허용
   }
 });
 
 export default router;
-
