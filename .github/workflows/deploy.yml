@@ -21,6 +21,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Inject environment variables
+        run: |
+          echo "IP_ADDRESS=${{ secrets.IP_ADDRESS }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "VUE_APP_TMDB_API_KEY=${{ secrets.VUE_APP_TMDB_API_KEY }}" >> .env
+          echo "VUE_APP_KAKAO_API_KEY=${{ secrets.VUE_APP_KAKAO_API_KEY }}" >> .env
+          echo "VUE_APP_REDIRECT_URI=${{ secrets.VUE_APP_REDIRECT_URI }}" >> .env
+
+
       - name: Build the project
         run: npm run build
 

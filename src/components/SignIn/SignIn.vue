@@ -52,6 +52,6 @@ button:hover {
 }
 .kakao-logo {
   width: 20px;
-  margin-right: 10px;
+  margin-right: 11px;
 }
 </style>

@@ -14,5 +14,5 @@ module.exports = defineConfig({
   transpileDependencies: true,
   publicPath: process.env.NODE_ENV === "production"
     ? "/kakaowsd/" // GitHub 레포지토리 경로
-    : "/",
+    : "/home",
 });
