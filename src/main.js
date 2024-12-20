@@ -26,6 +26,9 @@ const toastOptions = {
 };
 library.add(fas);
 library.add(faMagnifyingGlass);
+if (localStorage.getItem("kakaoAccessToken")) {
+    store.dispatch("kakaoLogin", localStorage.getItem("kakaoAccessToken"));
+  }
 // Vue 앱에 Toastification 플러그인 추가
 app.use(Toast, toastOptions);
 app.component('font-awesome-icon', FontAwesomeIcon);

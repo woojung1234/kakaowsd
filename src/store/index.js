@@ -7,8 +7,9 @@ const toast = useToast();
 export default createStore({
   state: {
     isLoggedIn: false, // 로그인 상태
-    apiKey: null, // 로그인된 사용자의 API 키
-    user: null,
+    apiKey: null, // TMDB API 키
+    kakaoAccessToken: null, // 카카오 로그인 토큰
+    user: null, // 카카오 사용자 정보
     popularMovies: [], // 인기 영화 목록
     movieDetails: null, // 선택된 영화의 상세 정보
     searchedMovies: [],
@@ -29,11 +30,13 @@ export default createStore({
     SET_LOGIN_STATE(state, payload) {
       state.isLoggedIn = payload.isLoggedIn;
       state.apiKey = payload.apiKey;
-      state.user = payload.user;
+      state.kakaoAccessToken = payload.kakaoAccessToken;
+      state.user = payload.userl;
     },
     LOGOUT(state) {
       state.isLoggedIn = false;
       state.apiKey = null;
+      state.kakaoAccessToken = null;
       state.user = null;
     },
     SET_POPULAR_MOVIES(state, movies) {
@@ -51,49 +54,69 @@ export default createStore({
     SET_GENRES(state, genres) {
       state.genres = genres;
     },
+    SET_API_KEY(state, apiKey) {
+      state.apiKey = apiKey;
+    },
+    
   },
   actions: {
     // 로그인 액션: API 키 유효성 확인
-    async login({ commit }, { apiKey, user }) {
+    async kakaoLogin({ commit }, accessToken) {
       try {
-        // TMDB API 호출로 API 키 유효성 확인
-        const response = await axios.get(
-            "https://api.themoviedb.org/3/movie/popular",
-            {
-              params: {
-                api_key: apiKey,
-                language: "ko-KR",
-                page: 1,
-              },
-            }
-        );
-
-        if (response.status === 200) {
-          // API 키 유효 -> 로그인 성공
-          commit("SET_LOGIN_STATE", { isLoggedIn: true, apiKey, user });
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("apiKey", apiKey);
-          localStorage.setItem("user", JSON.stringify(user));
-        }
+        const response = await axios.get("https://kapi.kakao.com/v2/user/me", {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+      
+        const user = response.data;
+        const nickname = user.properties?.nickname || "사용자"; // nickname 기본값 설정
+        console.log("Kakao User Info:", user);
+      
+        commit("SET_LOGIN_STATE", {
+          isLoggedIn: true,
+          kakaoAccessToken: accessToken,
+          user,
+        });
+      
+        localStorage.setItem("kakaoAccessToken", accessToken);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("userName", nickname);
+        toast.success(`Welcome, ${nickname}!`);
       } catch (error) {
-        toast.error("Invalid API Key. Please try again.");
-        throw new Error("API Key is not valid");
+        console.error("Kakao login failed:", error);
+        localStorage.removeItem("kakaoAccessToken");
+        toast.error("Failed to log in with Kakao. Please try again.");
+        throw new Error("Kakao login failed");
       }
+      
     },
-    logout({ commit }) {
-      commit("LOGOUT");
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("apiKey");
-      localStorage.removeItem("user");
-    },
-    loadAuthState({ commit }) {
-      const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-      const apiKey = localStorage.getItem("apiKey");
-      const user = JSON.parse(localStorage.getItem("user"));
-      if (isLoggedIn && apiKey) {
-        commit("SET_LOGIN_STATE", { isLoggedIn, apiKey, user });
-      }
-    },
+  logout({ commit }) {
+    commit("LOGOUT");
+
+    // LocalStorage 초기화
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("kakaoAccessToken");
+    localStorage.removeItem("user");
+
+    toast.info("You have been logged out.");
+  },
+  // LocalStorage에서 로그인 상태 불러오기
+  loadAuthState({ commit }) {
+    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const kakaoAccessToken = localStorage.getItem("kakaoAccessToken");
+    const user = JSON.parse(localStorage.getItem("user"));
+    const apiKey = localStorage.getItem("apiKey"); // TMDB API Key
+  
+    if (isLoggedIn && kakaoAccessToken) {
+      commit("SET_LOGIN_STATE", { isLoggedIn, kakaoAccessToken, user });
+    }
+  
+    if (apiKey) {
+      commit("SET_API_KEY", apiKey);
+    } else {
+      console.warn("API Key is missing. Redirecting to login page...");
+      toast.error("API Key가 없습니다. 로그인을 진행해주세요.");
+    }
+  },
 
     // 영화 데이터 가져오기
     async fetchPopularMovies({ commit, state }) {

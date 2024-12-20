@@ -25,7 +25,6 @@
 
     <!-- 우측 사용자 정보 및 로그아웃 -->
     <div class="auth">
-      <!-- 로그인 상태에 따라 사용자 이름 표시 -->
       <span v-if="userName" class="user-email">{{ userName }}님</span>
       <button v-if="userName" @click="logout" aria-label="로그아웃">
         <font-awesome-icon :icon="['fas', 'right-from-bracket']" />
@@ -46,9 +45,9 @@ const router = useRouter();
 // 사용자 이름 상태
 const userName = ref("");
 
-// 로그인 상태 확인 (localStorage에서 사용자 이름 불러오기)
+// 로그인 상태 확인 (LocalStorage에서 사용자 이름 불러오기)
 const checkLoginStatus = () => {
-  const name = localStorage.getItem("userName"); // 카카오에서 가져온 사용자 이름 저장된 키
+  const name = localStorage.getItem("userName");
   if (name) {
     userName.value = name;
   } else {
@@ -58,10 +57,11 @@ const checkLoginStatus = () => {
 
 // 로그아웃 기능
 const logout = () => {
-  localStorage.removeItem("kakaoAccessToken"); // Access Token 삭제
-  localStorage.removeItem("userName"); // 사용자 이름 삭제
+  localStorage.removeItem("kakaoAccessToken");
+  localStorage.removeItem("userName");
   userName.value = "";
-  router.push("/signin"); // 로그인 페이지로 이동
+  alert("로그아웃되었습니다."); // 사용자 피드백 메시지
+  router.push("/signin");
 };
 
 // 네비게이션 기능
